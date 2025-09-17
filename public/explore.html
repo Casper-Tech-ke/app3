@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore - Spotify API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="music-wave wave1"></div>
+        <div class="music-wave wave2"></div>
+        <div class="music-wave wave3"></div>
+        <div class="music-wave wave4"></div>
+    </div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🎵</span>
+                <span class="logo-text">SpotifyAPI</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/explore" class="nav-link active">Explore</a>
+                <a href="/test" class="nav-link">Test API</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Explore</span> Our API
+                </h1>
+                <p class="hero-description">
+                    Discover how our Spotify API works and what you can build with it.
+                    Perfect for developers and music enthusiasts.
+                </p>
+            </div>
+        </div>
+
+        <div class="explore-section">
+            <div class="container">
+                <div class="api-docs">
+                    <div class="doc-card">
+                        <h3>API Endpoint</h3>
+                        <div class="code-block">
+                            <code>GET /api/spotify?url={spotify_url}</code>
+                        </div>
+                        <p>Main endpoint to fetch track information and download links from Spotify URLs.</p>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Request Parameters</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>url</code></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Valid Spotify track URL</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Response Format</h3>
+                        <div class="code-block">
+<pre>{
+  "success": true,
+  "data": {
+    "title": "Artist - Song Name",
+    "artist": "Artist Name",
+    "name": "Song Name",
+    "duration": "3:45",
+    "popularity": "85%",
+    "preview": "https://preview.url",
+    "thumbnail": "https://image.url",
+    "url": "https://spotify.url",
+    "downloadLink": "https://download.url"
+  }
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Example Usage</h3>
+                        <div class="example-section">
+                            <h4>JavaScript (Fetch)</h4>
+                            <div class="code-block">
+<pre>const response = await fetch('/api/spotify?url=https://open.spotify.com/track/example');
+const data = await response.json();
+
+if (data.success) {
+    console.log(data.data.title);
+    console.log(data.data.downloadLink);
+}</pre>
+                            </div>
+
+                            <h4>cURL</h4>
+                            <div class="code-block">
+<pre>curl "https://your-domain.vercel.app/api/spotify?url=https://open.spotify.com/track/example"</pre>
+                            </div>
+
+                            <h4>Python</h4>
+                            <div class="code-block">
+<pre>import requests
+
+url = "https://your-domain.vercel.app/api/spotify"
+params = {"url": "https://open.spotify.com/track/example"}
+
+response = requests.get(url, params=params)
+data = response.json()
+
+if data["success"]:
+    print(data["data"]["title"])
+    print(data["data"]["downloadLink"])</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Error Handling</h3>
+                        <p>The API returns appropriate HTTP status codes and error messages:</p>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>Status Code</th>
+                                    <th>Description</th>
+                                    <th>Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>400</code></td>
+                                    <td>Bad Request</td>
+                                    <td><code>{"success": false, "error": "URL parameter is required"}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>500</code></td>
+                                    <td>Internal Server Error</td>
+                                    <td><code>{"success": false, "error": "Track not found"}</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Rate Limits</h3>
+                        <p>Please be respectful with API usage. While there are no strict rate limits, excessive requests may be throttled to ensure service availability for all users.</p>
+                    </div>
+
+                    <div class="doc-card">
+                        <h3>Supported URLs</h3>
+                        <ul class="url-examples">
+                            <li>✅ <code>https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh</code></li>
+                            <li>✅ <code>https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh?si=example</code></li>
+                            <li>❌ <code>https://spotify.com/track/example</code> (wrong domain)</li>
+                            <li>❌ <code>https://open.spotify.com/playlist/example</code> (playlists not supported)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="integration-examples">
+                    <h2 class="section-title">Integration Ideas</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🤖</div>
+                            <h3>Discord Bots</h3>
+                            <p>Create music bots that can download and share Spotify tracks in your Discord servers</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📱</div>
+                            <h3>Mobile Apps</h3>
+                            <p>Build mobile applications with music downloading capabilities</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🌐</div>
+                            <h3>Web Applications</h3>
+                            <p>Integrate into your existing web apps for music-related features</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🛠</div>
+                            <h3>Automation Tools</h3>
+                            <p>Create scripts for batch downloading or music library management</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
