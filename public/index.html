@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify API - Music Downloader</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="music-wave wave1"></div>
+        <div class="music-wave wave2"></div>
+        <div class="music-wave wave3"></div>
+        <div class="music-wave wave4"></div>
+    </div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🎵</span>
+                <span class="logo-text">SpotifyAPI</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/explore" class="nav-link">Explore</a>
+                <a href="/test" class="nav-link">Test API</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Spotify Music</span>
+                    <br>Downloader
+                </h1>
+                <p class="hero-description">
+                    Convert and download your favorite Spotify tracks with high quality audio.
+                    Just paste the Spotify URL and get your music instantly.
+                </p>
+                
+                <div class="search-container">
+                    <div class="input-wrapper">
+                        <input type="text" 
+                               id="spotifyUrl" 
+                               placeholder="Paste your Spotify track URL here..."
+                               class="url-input">
+                        <button onclick="processSpotifyUrl()" class="download-btn">
+                            <span class="btn-text">Download</span>
+                            <span class="btn-icon">⬇</span>
+                        </button>
+                    </div>
+                    <div class="loading-indicator" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <span>Processing your request...</span>
+                    </div>
+                </div>
+
+                <div class="result-container" id="resultContainer">
+                    <div class="track-card">
+                        <div class="track-image-wrapper">
+                            <img id="trackThumbnail" src="" alt="Track Thumbnail" class="track-image">
+                            <div class="play-overlay">
+                                <button class="play-btn" onclick="togglePreview()">▶</button>
+                            </div>
+                        </div>
+                        
+                        <div class="track-info">
+                            <h3 id="trackTitle" class="track-title"></h3>
+                            <p id="trackArtist" class="track-artist"></p>
+                            <div class="track-details">
+                                <span id="trackDuration" class="detail-item"></span>
+                                <span id="trackPopularity" class="detail-item"></span>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <a id="downloadLink" href="#" target="_blank" class="action-btn primary">
+                                    <span>⬇</span> Download MP3
+                                </a>
+                                <a id="spotifyLink" href="#" target="_blank" class="action-btn secondary">
+                                    <span>🎵</span> Open in Spotify
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="error-container" id="errorContainer">
+                    <div class="error-message">
+                        <span class="error-icon">⚠</span>
+                        <p id="errorText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <div class="container">
+                <h2 class="section-title">Why Choose Our Service?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎧</div>
+                        <h3>High Quality Audio</h3>
+                        <p>Download tracks in premium quality with crystal clear sound</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Lightning Fast</h3>
+                        <p>Quick processing and instant downloads for your favorite music</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure & Private</h3>
+                        <p>Your data is safe with us, no tracking or personal information stored</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Mobile Friendly</h3>
+                        <p>Works perfectly on all devices - desktop, tablet, and mobile</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <audio id="previewAudio" preload="none"></audio>
+
+    <script>
+        let currentAudio = null;
+        let isPlaying = false;
+
+        async function processSpotifyUrl() {
+            const url = document.getElementById('spotifyUrl').value.trim();
+            const loading = document.getElementById('loadingIndicator');
+            const result = document.getElementById('resultContainer');
+            const error = document.getElementById('errorContainer');
+
+            // Hide previous results
+            result.style.display = 'none';
+            error.style.display = 'none';
+            
+            if (!url) {
+                showError('Please enter a Spotify URL');
+                return;
+            }
+
+            if (!url.includes('open.spotify.com')) {
+                showError('Please enter a valid Spotify URL');
+                return;
+            }
+
+            loading.style.display = 'flex';
+
+            try {
+                const response = await fetch(`/api/spotify?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (data.success) {
+                    displayTrackInfo(data.data);
+                } else {
+                    showError(data.error || 'Failed to process the URL');
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                showError('Network error. Please try again.');
+            }
+        }
+
+        function displayTrackInfo(track) {
+            document.getElementById('trackTitle').textContent = track.title;
+            document.getElementById('trackArtist').textContent = track.artist;
+            document.getElementById('trackDuration').textContent = `⏱ ${track.duration}`;
+            document.getElementById('trackPopularity').textContent = `🔥 ${track.popularity}`;
+            document.getElementById('trackThumbnail').src = track.thumbnail;
+            document.getElementById('downloadLink').href = track.downloadLink;
+            document.getElementById('spotifyLink').href = track.url;
+
+            if (track.preview && track.preview !== 'No preview audio Available') {
+                currentAudio = new Audio(track.preview);
+                document.querySelector('.play-overlay').style.display = 'flex';
+            } else {
+                document.querySelector('.play-overlay').style.display = 'none';
+            }
+
+            document.getElementById('resultContainer').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorContainer').style.display = 'block';
+        }
+
+        function togglePreview() {
+            const playBtn = document.querySelector('.play-btn');
+            
+            if (!currentAudio) return;
+
+            if (isPlaying) {
+                currentAudio.pause();
+                playBtn.textContent = '▶';
+                isPlaying = false;
+            } else {
+                currentAudio.play();
+                playBtn.textContent = '⏸';
+                isPlaying = true;
+            }
+
+            currentAudio.onended = function() {
+                playBtn.textContent = '▶';
+                isPlaying = false;
+            };
+        }
+
+        // Enter key support
+        document.getElementById('spotifyUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processSpotifyUrl();
+            }
+        });
+    </script>
+</body>
+</html>
