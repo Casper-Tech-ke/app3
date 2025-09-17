@@ -127,4 +127,189 @@
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Size:</span>
-                                <span class="
+                                <span class="info-value" id="responseSize">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-examples">
+                    <h3>Test Scenarios</h3>
+                    <div class="scenarios-grid">
+                        <div class="scenario-card">
+                            <h4>✅ Valid Request</h4>
+                            <p>Test with a valid Spotify track URL</p>
+                            <div class="scenario-example">
+                                <code>https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh</code>
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <h4>❌ Invalid URL</h4>
+                            <p>Test error handling with invalid URL</p>
+                            <div class="scenario-example">
+                                <code>https://invalid-url.com</code>
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <h4>❌ Missing Parameter</h4>
+                            <p>Test without URL parameter</p>
+                            <div class="scenario-example">
+                                <code>(empty URL)</code>
+                            </div>
+                        </div>
+
+                        <div class="scenario-card">
+                            <h4>❌ Wrong Spotify URL</h4>
+                            <p>Test with playlist instead of track</p>
+                            <div class="scenario-example">
+                                <code>https://open.spotify.com/playlist/example</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="health-check">
+                    <h3>API Health Check</h3>
+                    <button onclick="checkHealth()" class="health-btn">
+                        <span>🏥</span> Check API Health
+                    </button>
+                    <div class="health-status" id="healthStatus">
+                        Click to check API health
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentTab = 'response';
+
+        function setTestUrl(url) {
+            document.getElementById('testUrl').value = url;
+            updateCurlCommand();
+        }
+
+        function updateCurlCommand() {
+            const url = document.getElementById('testUrl').value;
+            const baseUrl = window.location.origin;
+            const curlCmd = `curl -X GET "${baseUrl}/api/spotify?url=${encodeURIComponent(url)}"`;
+            document.getElementById('curlCommand').textContent = curlCmd;
+        }
+
+        function switchTab(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+            // Add active class to current tab
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            currentTab = tabName;
+        }
+
+        async function testAPI() {
+            const url = document.getElementById('testUrl').value.trim();
+            const loadingState = document.getElementById('loadingState');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const testBtn = document.getElementById('testBtn');
+
+            // Reset UI
+            loadingState.style.display = 'flex';
+            testBtn.disabled = true;
+            setStatus('testing', 'Testing...');
+
+            const startTime = Date.now();
+
+            try {
+                const response = await fetch(`/api/spotify?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+
+                // Update response data
+                document.getElementById('responseData').textContent = JSON.stringify(data, null, 2);
+                
+                // Update response headers
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                document.getElementById('responseHeaders').textContent = JSON.stringify(headers, null, 2);
+
+                // Update response info
+                document.getElementById('responseStatus').textContent = response.status;
+                document.getElementById('responseTime').textContent = responseTime + 'ms';
+                document.getElementById('responseSize').textContent = new Blob([JSON.stringify(data)]).size + ' bytes';
+
+                // Set status based on response
+                if (response.ok && data.success) {
+                    setStatus('success', 'Success');
+                } else {
+                    setStatus('error', 'Error');
+                }
+
+            } catch (error) {
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+
+                document.getElementById('responseData').textContent = JSON.stringify({
+                    success: false,
+                    error: error.message,
+                    timestamp: new Date().toISOString()
+                }, null, 2);
+
+                document.getElementById('responseStatus').textContent = 'Network Error';
+                document.getElementById('responseTime').textContent = responseTime + 'ms';
+                document.getElementById('responseSize').textContent = '-';
+
+                setStatus('error', 'Network Error');
+            } finally {
+                loadingState.style.display = 'none';
+                testBtn.disabled = false;
+                updateCurlCommand();
+            }
+        }
+
+        async function checkHealth() {
+            const healthStatus = document.getElementById('healthStatus');
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (data.success) {
+                    healthStatus.innerHTML = '<span style="color: #10b981;">✅ API is healthy and running</span>';
+                } else {
+                    healthStatus.innerHTML = '<span style="color: #ef4444;">❌ API health check failed</span>';
+                }
+            } catch (error) {
+                healthStatus.innerHTML = '<span style="color: #ef4444;">❌ Cannot connect to API</span>';
+            }
+        }
+
+        function setStatus(type, text) {
+            const indicator = document.getElementById('statusIndicator');
+            const dot = indicator.querySelector('.status-dot');
+            const textEl = indicator.querySelector('.status-text');
+            
+            dot.className = `status-dot ${type}`;
+            textEl.textContent = text;
+        }
+
+        function clearResults() {
+            document.getElementById('responseData').textContent = 'Click "Test API" to see the response';
+            document.getElementById('responseHeaders').textContent = 'No response headers yet';
+            document.getElementById('responseStatus').textContent = '-';
+            document.getElementById('responseTime').textContent = '-';
+            document.getElementById('responseSize').textContent = '-';
+            setStatus('ready', 'Ready');
+        }
+
+        // Initialize curl command
+        document.getElementById('testUrl').addEventListener('input', updateCurlCommand);
+        updateCurlCommand();
+    </script>
+</body>
+</html>
