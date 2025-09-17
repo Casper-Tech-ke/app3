@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Spotify API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="music-wave wave1"></div>
+        <div class="music-wave wave2"></div>
+        <div class="music-wave wave3"></div>
+        <div class="music-wave wave4"></div>
+    </div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🎵</span>
+                <span class="logo-text">SpotifyAPI</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/explore" class="nav-link">Explore</a>
+                <a href="/test" class="nav-link active">Test API</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Test</span> Our API
+                </h1>
+                <p class="hero-description">
+                    Try out the API with different Spotify URLs and see the responses in real-time.
+                    Perfect for testing and development.
+                </p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="container">
+                <div class="test-interface">
+                    <div class="test-input-section">
+                        <h3>API Testing Interface</h3>
+                        
+                        <div class="input-group">
+                            <label for="apiEndpoint">Endpoint</label>
+                            <input type="text" id="apiEndpoint" value="/api/spotify" readonly class="readonly-input">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="testUrl">Spotify URL</label>
+                            <input type="text" id="testUrl" placeholder="Enter Spotify track URL..." class="test-input">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Quick Test URLs</label>
+                            <div class="quick-urls">
+                                <button onclick="setTestUrl('https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh')" class="quick-btn">
+                                    Popular Song
+                                </button>
+                                <button onclick="setTestUrl('https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3')" class="quick-btn">
+                                    Rock Classic
+                                </button>
+                                <button onclick="setTestUrl('https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b')" class="quick-btn">
+                                    Electronic
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="test-controls">
+                            <button onclick="testAPI()" class="test-btn primary" id="testBtn">
+                                <span>🧪</span> Test API
+                            </button>
+                            <button onclick="clearResults()" class="test-btn secondary">
+                                <span>🗑</span> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="test-results-section">
+                        <div class="results-header">
+                            <h3>API Response</h3>
+                            <div class="status-indicator" id="statusIndicator">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Ready</span>
+                            </div>
+                        </div>
+
+                        <div class="response-container">
+                            <div class="loading-state" id="loadingState">
+                                <div class="spinner"></div>
+                                <span>Testing API...</span>
+                            </div>
+
+                            <div class="response-tabs">
+                                <button class="tab-btn active" onclick="switchTab('response')">Response</button>
+                                <button class="tab-btn" onclick="switchTab('headers')">Headers</button>
+                                <button class="tab-btn" onclick="switchTab('curl')">cURL</button>
+                            </div>
+
+                            <div class="tab-content" id="responseTab">
+                                <pre><code id="responseData">Click "Test API" to see the response</code></pre>
+                            </div>
+
+                            <div class="tab-content hidden" id="headersTab">
+                                <pre><code id="responseHeaders">No response headers yet</code></pre>
+                            </div>
+
+                            <div class="tab-content hidden" id="curlTab">
+                                <pre><code id="curlCommand">curl -X GET "your-endpoint-url"</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="response-info" id="responseInfo">
+                            <div class="info-item">
+                                <span class="info-label">Status:</span>
+                                <span class="info-value" id="responseStatus">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Time:</span>
+                                <span class="info-value" id="responseTime">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Size:</span>
+                                <span class="
