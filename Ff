@@ -1,0 +1,64 @@
+I need to set up an API endpoint app with these flow const axios = require('axios');
+async function convert(ms) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = ((ms % 60000) / 1000).toFixed(0);
+  return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+}
+async function spotify(query) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // First get Spotify credentials
+      const creds = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
+        headers: {
+          Authorization: 'Basic ' + Buffer.from('4c4fc8c3496243cbba99b39826e2841f' + ':' + 'd598f89aba0946e2b85fb8aefa9ae4c8').toString('base64')
+        }
+      });
+      
+      if (!creds.data.access_token) {
+        return reject(new Error('Failed to get Spotify access token'));
+      }
+      // Get track info
+      const trackInfo = await axios.get(query, {
+        headers: {
+          Authorization: 'Bearer ' + creds.data.access_token
+        }
+      });
+      const track = trackInfo.data;
+      if (!track) {
+        return reject(new Error('Track not found'));
+      }
+      // Download the track
+      const BASEURL = "https://api.fabdl.com";
+      const headers = {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36",
+      };
+      const { data: info } = await axios.get(`${BASEURL}/spotify/get?url=${query}`, { headers });
+      const { gid, id } = info.result;
+      const { data: download } = await axios.get(`${BASEURL}/spotify/mp3-convert-task/${gid}/${id}`, { headers });
+      if (!download.result.download_url) {
+        return reject(new Error('Failed to get download URL'));
+      }
+      const downloadUrl = `${BASEURL}${download.result.download_url}`;
+      // Prepare metadata
+      const result = {
+        title: track.artists[0]?.name + ' - ' + track.name,
+        artist: track.artists[0]?.name,
+        name: track.name,
+        duration: await convert(track.duration_ms),
+        popularity: track.popularity + '%',
+        preview: track.preview_url || 'No preview audio Available',
+        thumbnail: track.album.images[0]?.url,
+        url: track.external_urls.spotify,
+        downloadLink: downloadUrl,
+      };
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+module.exports = { spotify };
+Home page or pages should not end in .html , /api/Spotify
+And explore and test page , write in a language hostable in vercel free plan  which will have no limitations on files, make a sweet CSS movements
